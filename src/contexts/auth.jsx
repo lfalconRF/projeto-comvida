@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         try {
           const response = await api.get(`/v2/results/`, {
             headers: {
-              Authorization: `Token ${user.token}`,
+              Authorization: `Token ${user?.token}`,
             },
             params: { user: interator },
           })
@@ -97,13 +97,15 @@ export const AuthProvider = ({ children }) => {
   }
 
   const getExams = async () => {
-    const response = await api.get('/v2/exams/', {
-      headers: {
-        Authorization: `Token ${user.token}`,
-      },
-    })
-    console.log('These are exams', response)
-    // setTutors(response)
+    if (user) {
+      const response = await api.get('/v2/exams/', {
+        headers: {
+          Authorization: `Token ${user?.token}`,
+        },
+      })
+      console.log('These are exams', response)
+      // setTutors(response)
+    }
   }
 
   const logout = () => {

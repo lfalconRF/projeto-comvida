@@ -1,7 +1,7 @@
 {
   "name": "plataforma-comvida",
   "version": "0.1.0",
-  "homepage": "./",
+  "homepage": "https://lfalconrf.github.io/projeto-comvida",
   "private": true,
   "proxy": "https://api-dev-comvida.ctc.ufsc.br/api",
   "dependencies": {
@@ -19,6 +19,8 @@
   },
   "scripts": {
     "start": "PORT=8080 react-scripts start",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -43,10 +45,11 @@
     ]
   },
   "devDependencies": {
-    "json-server": "^0.17.0",
     "@babel/core": "^7.17.5",
     "@babel/preset-env": "^7.16.11",
     "babel-loader": "^8.2.3",
+    "gh-pages": "^4.0.0",
+    "json-server": "^0.17.0",
     "webpack": "^5.70.0"
   }
 }
