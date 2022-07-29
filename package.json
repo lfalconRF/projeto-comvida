@@ -1,6 +1,7 @@
 {
   "name": "plataforma-comvida",
   "version": "0.1.0",
+  "homepage": "./",
   "private": true,
   "proxy": "https://api-dev-comvida.ctc.ufsc.br/api",
   "dependencies": {
