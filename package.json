@@ -1,7 +1,6 @@
 {
   "name": "plataforma-comvida",
   "version": "0.1.0",
-  "homepage": "https://lfalconrf.github.io/projeto-comvida",
   "private": true,
   "proxy": "https://api-dev-comvida.ctc.ufsc.br/api",
   "dependencies": {
