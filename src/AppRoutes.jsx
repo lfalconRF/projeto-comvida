@@ -23,7 +23,7 @@ const AppRoutes = () => {
   }
 
   return (
-    <Routers basename={process.env.PUBLIC_URL}>
+    <Routers>
       <AuthProvider>
         <Routes>
           <Route exact path="/login" element={<LoginPage />} />
