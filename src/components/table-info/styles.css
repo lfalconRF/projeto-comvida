@@ -32,7 +32,7 @@
   color: white;
 }
 
-.overlay {
+#overlay {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, .7);
@@ -42,7 +42,7 @@
   z-index: 10;
 }
 
-.modal {
+#modal {
   position: fixed;
   z-index: 20;
   background: #fff;
@@ -55,7 +55,7 @@
   border-radius: 70px;
 }
 
-.modal .modal__main {
+#modal__main {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -114,6 +114,10 @@
   --tooltip-background-color: black;
   --tooltip-margin: 30px;
   --tooltip-arrow-size: 6px;
+}
+
+.cabecalho:hover{
+  cursor: pointer;
 }
 
 /* Wrapping */

@@ -19,7 +19,6 @@ const Header = () => {
   const handleClickHomePage = () => {
     navigate('/')
   }
-console.log("Blabalbal")
 
   return (
     <div id="container-header">

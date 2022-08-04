@@ -6,8 +6,9 @@ export const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  // const [tutors, setTutors] = useState([])
-  // const [children_teenagers, setChildren_Teenagers] = useState([])
+  const [tutors, setTutors] = useState([])
+  const [exams, setExams] = useState([])
+  const [children_teenagers, setChildren_Teenagers] = useState([])
 
 
   const [results, setResults] = useState([])
@@ -33,27 +34,27 @@ export const AuthProvider = ({ children }) => {
     return false
   }
 
-  // const getTutors = async () => {
-  //   const response = await api.get('/v2/tutors/', {
-  //     headers: {
-  //       Authorization: `Token ${user.token}`,
-  //     },
-  //     params: { page: 7 },
-  //   })
-  //   // console.log('These are tutors', response)
-  //   setTutors(response)
-  // }
+  const getTutors = async () => {
+    const response = await api.get('/v2/tutors/', {
+      headers: {
+        Authorization: `Token ${user.token}`,
+      },
+      params: { page: 7 },
+    })
+    console.log('These are tutors', response)
+    setTutors(response)
+  }
 
-  // const getChildren = async () => {
-  //   const response = await api.get('/v2/children/', {
-  //     headers: {
-  //       Authorization: `Token ${user.token}`,
-  //     },
-  //     params: { page: 3 },
-  //   })
-  //   // console.log('These are children', response)
-  //   setChildren_Teenagers(response)
-  // }
+  const getChildren = async () => {
+    const response = await api.get('/v2/children/', {
+      headers: {
+        Authorization: `Token ${user.token}`,
+      },
+      params: { page: 3 },
+    })
+    console.log('These are children', response)
+    setChildren_Teenagers(response)
+  }
 
   const getResults = async () => {
     if (user) {
@@ -67,9 +68,9 @@ export const AuthProvider = ({ children }) => {
             params: { user: interator },
           })
           let catchTheValue = response.data
-          console.log(`This is catchValues de numero ${interator}`)
-          console.log('Value: ', catchTheValue)
-          console.log(' ')
+          // console.log(`This is catchValues de numero ${interator}`)
+          // console.log('Value: ', catchTheValue)
+          // console.log(' ')
           if (catchTheValue.length) {
             valuesResults.push(catchTheValue)
           }
@@ -77,8 +78,8 @@ export const AuthProvider = ({ children }) => {
       }
 
       const finalResults = valuesResults.map(value => { return value.filter(item => item.exam !== null) })
-      console.log('This is the results')
-      console.log(valuesResults)
+      console.log('This is the results filtred')
+      console.log(finalResults)
       setResults(finalResults)
       setLoading(false)
     }
@@ -93,18 +94,19 @@ export const AuthProvider = ({ children }) => {
     })
     console.log(`The questionario:`)
     console.log(response.data)
-    return response?.data?.result_answers
+    return response?.data
   }
 
   const getExams = async () => {
+    const listExams = []
     if (user) {
       const response = await api.get('/v2/exams/', {
         headers: {
           Authorization: `Token ${user?.token}`,
         },
       })
-      console.log('These are exams', response)
-      // setTutors(response)
+      response.data.map(question => listExams.push({ numberId: question?.id, sizeQuestions: question?.questions?.length }))
+      setExams(listExams)
     }
   }
 
@@ -113,11 +115,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user')
     setUser(null)
   }
-  getExams()
 
   return (
     <AuthContext.Provider
-      value={{ authenticated: !!user, user, loading, login, logout, registerSearcher, getResults, results, getQuestionario }}
+      value={{ authenticated: !!user, user, loading, getChildren, getTutors, getExams, login, logout, registerSearcher, getResults, results, exams, getQuestionario }}
     >
       {children}
     </AuthContext.Provider>

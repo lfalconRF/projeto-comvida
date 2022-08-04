@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import InputMask from 'react-input-mask'
 
 import { AuthContext } from '../../contexts/auth'
-import { Link} from 'react-router-dom'
 
 import "./styles.css"
 
@@ -20,8 +19,6 @@ const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    console.log('This is cpf', cpf)
-    console.log('This is password', password)
 
     let confirmLogin = await login(cpf, password)
     if (confirmLogin) {
@@ -37,7 +34,7 @@ const LoginPage = () => {
   return (
     <div id="login">
       <h1 className="title">Login do Sistema</h1>
-      <h1 className="subtitle">Projeto Com Vida</h1>
+      <h1 className="subtitle">Projeto ComVida</h1>
       <form className="form" onSubmit={handleSubmit}>
         <img src={imagem_projetocomvida} />
         <div className="field">
@@ -72,9 +69,9 @@ const LoginPage = () => {
       </form>
       {isOpenErrorMessage && (
         <>
-          <div className="overlay" />
-          <div className="modal">
-            <main className="modal__main">
+          <div id="overlay" />
+          <div id="modal">
+            <main id="modal__main">
               <h1>Login invalido</h1>
               <p>
                 Confira se você digitou o CPF e a senha certos
