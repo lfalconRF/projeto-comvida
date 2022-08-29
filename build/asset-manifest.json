@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/static/css/main.33eb8ec0.css",
-    "main.js": "/static/js/main.443f5881.js",
+    "main.js": "/static/js/main.aa20e99a.js",
     "static/js/787.f724430c.chunk.js": "/static/js/787.f724430c.chunk.js",
     "static/media/comvida-pessoa.png": "/static/media/comvida-pessoa.e25a3a7c765a8b5b9d16.png",
     "static/media/logo-comvida.png": "/static/media/logo-comvida.5f13a7ac45cc392ad600.png",
     "index.html": "/index.html",
     "main.33eb8ec0.css.map": "/static/css/main.33eb8ec0.css.map",
-    "main.443f5881.js.map": "/static/js/main.443f5881.js.map",
+    "main.aa20e99a.js.map": "/static/js/main.aa20e99a.js.map",
     "787.f724430c.chunk.js.map": "/static/js/787.f724430c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.33eb8ec0.css",
-    "static/js/main.443f5881.js"
+    "static/js/main.aa20e99a.js"
   ]
 }
