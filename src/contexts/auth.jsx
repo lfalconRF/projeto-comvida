@@ -5,21 +5,26 @@ export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
+  const [finishedTutors, setFinishedTutors] = useState(false)
+  const [finishedChildren, setFinishedChildren] = useState(false)
   const [loading, setLoading] = useState(true)
   const [tutors, setTutors] = useState([])
   const [exams, setExams] = useState([])
-  const [children_teenagers, setChildren_Teenagers] = useState([])
-
-
+  const [childrenTeen, setChildrenTeen] = useState([])
+  const [quantityTutors, setQuantityTutors] = useState(0)
+  const [quantityChildren, setQuantityChildren] = useState(0)
   const [results, setResults] = useState([])
+  const [isOpenQuestionaryModal, setIsOpenQuestionaryModal] = useState(false)
+  const [isChangePassword, setIsChangePassword] = useState(false)
 
   const login = async (cpf, password) => {
     const response = await api.post('/v2/users/login/', { cpf, password })
-
     if (response?.status === 200) {
+      setLoading(true)
       setUser(response.data)
       localStorage.setItem('user', JSON.stringify(response.data))
-      console.log("This is the awnser",response.data)
+      await getQuantityTutors(response.data?.token)
+      await getQuantityChildren(response.data?.token)
       return true
     }
     return false
@@ -34,56 +39,161 @@ export const AuthProvider = ({ children }) => {
     return false
   }
 
-  const getTutors = async () => {
+  const getQuantityTutors = async (token) => {
     const response = await api.get('/v2/tutors/', {
       headers: {
-        Authorization: `Token ${user.token}`,
+        Authorization: `Token ${token}`,
       },
-      params: { page: 7 },
+      params: { page: 1 },
     })
-    console.log('These are tutors', response)
-    setTutors(response)
+
+    if (response?.data.count % 10 === 0) {
+      setQuantityTutors(response?.data.count / 10)
+    } else {
+      setQuantityTutors(Math.floor(response?.data.count / 10) + 1)
+    }
   }
 
-  const getChildren = async () => {
-    const response = await api.get('/v2/children/', {
+  const getTutorsFromApi = async (page) => {
+    console.log('response')
+    const response = await api.get('/v2/tutors/', {
       headers: {
-        Authorization: `Token ${user.token}`,
+        Authorization: `Token ${user?.token}`,
       },
-      params: { page: 3 },
+      params: { page: page },
     })
-    console.log('These are children', response)
-    setChildren_Teenagers(response)
+    return response?.data.results
   }
 
-  const getResults = async () => {
-    if (user) {
-      const valuesResults = []
-      for (let interator = 0; interator <= 800; interator++) {
-        try {
-          const response = await api.get(`/v2/results/`, {
-            headers: {
-              Authorization: `Token ${user?.token}`,
-            },
-            params: { user: interator },
-          })
-          let catchTheValue = response.data
-          // console.log(`This is catchValues de numero ${interator}`)
-          // console.log('Value: ', catchTheValue)
-          // console.log(' ')
-          if (catchTheValue.length) {
-            valuesResults.push(catchTheValue)
-          }
-        } catch (error) {}
-      }
+  // const changePassword = async ({password, newPassword}) => {
+  //   console.log('response')
+  //   const response = await api.post('/v2/users/change_password/', {
+  //     headers: {
+  //       Authorization: `Token ${user?.token}`,
+  //     },
+  //     body: { password, confirm_password: newPassword },
+  //   })
+  //   return response
+  // }
 
-      const finalResults = valuesResults.map(value => { return value.filter(item => item.exam !== null) })
-      console.log('This is the results filtred')
-      console.log(finalResults)
-      setResults(finalResults)
-      setLoading(false)
+  const setTutorsFiltered = async () => {
+    const listOfTutors = []
+    let tutorsFromResponse = null
+    let count = 1
+    while (count <= quantityTutors) {
+      tutorsFromResponse = await getTutorsFromApi(count)
+      listOfTutors.push(...tutorsFromResponse)
+      count += 1
     }
 
+    const filteredTutors = []
+    filteredTutors.push({ tutor: listOfTutors[0], children: [{ name: 'Familia' }] })
+    count = 1
+
+    while (count < listOfTutors.length) {
+      if (
+        !verifyIfContains(filteredTutors, listOfTutors[count]) &&
+        listOfTutors[count].user !== null
+      ) {
+        filteredTutors.push({ tutor: listOfTutors[count], children: [{ name: 'Familia' }] })
+      }
+      count += 1
+    }
+
+    setTutors(filteredTutors)
+    setFinishedTutors(true)
+  }
+
+  const verifyIfContains = (array, value) => {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i].user === value.user) {
+        return true
+      }
+    }
+    return false
+  }
+
+  const verifyIfContainsSameChild = (array, value) => {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i].id === value.id) {
+        return true
+      }
+    }
+    return false
+  }
+
+  const getQuantityChildren = async (token) => {
+    const response = await api.get('/v2/children/', {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      params: { page: 1 },
+    })
+
+    if (response?.data.count % 10 === 0) {
+      setQuantityChildren(response?.data.count / 10)
+    } else {
+      setQuantityChildren(Math.floor(response?.data.count / 10) + 1)
+    }
+  }
+
+  const getChildrenFromApi = async (page) => {
+    const response = await api.get('/v2/children/', {
+      headers: {
+        Authorization: `Token ${user?.token}`,
+      },
+      params: { page: page },
+    })
+
+    return response?.data.results
+  }
+
+  const setChildrenTeenFiltered = async () => {
+    const listOfChildren = []
+    let childrenFromResponse = null
+    let count = 1
+    while (count <= quantityChildren) {
+      childrenFromResponse = await getChildrenFromApi(count)
+      listOfChildren.push(...childrenFromResponse)
+      count += 1
+    }
+
+    const filteredChildren = []
+    filteredChildren.push(listOfChildren[0])
+    count = 1
+
+    while (count < listOfChildren.length) {
+      if (
+        !verifyIfContainsSameChild(filteredChildren, listOfChildren[count]) &&
+        listOfChildren[count].user !== null
+      ) {
+        filteredChildren.push(listOfChildren[count])
+      }
+      count += 1
+    }
+
+    setChildrenTeen(filteredChildren)
+    setFinishedChildren(true)
+  }
+
+  const getResults = async (userId) => {
+    try {
+      const response = await api.get(`/v2/results/`, {
+        headers: {
+          Authorization: `Token ${user?.token}`,
+        },
+        params: { user: userId },
+      })
+      console.log('response', response)
+      let catchTheValue = response.data
+      console.log('catchTheValue', catchTheValue)
+      if (response.data.length > 0) {
+        const finalResults = catchTheValue.filter((item) => item.exam !== null)
+        console.log('finalResults', finalResults)
+        setResults(finalResults)
+        return finalResults
+      }
+    } catch (error) {}
   }
 
   const getQuestionario = async (idQuest) => {
@@ -92,8 +202,6 @@ export const AuthProvider = ({ children }) => {
         Authorization: `Token ${user.token}`,
       },
     })
-    console.log(`The questionario:`)
-    console.log(response.data)
     return response?.data
   }
 
@@ -105,7 +213,9 @@ export const AuthProvider = ({ children }) => {
           Authorization: `Token ${user?.token}`,
         },
       })
-      response.data.map(question => listExams.push({ numberId: question?.id, sizeQuestions: question?.questions?.length }))
+      response.data.map((question) =>
+        listExams.push({ numberId: question?.id, sizeQuestions: question?.questions?.length })
+      )
       setExams(listExams)
     }
   }
@@ -118,7 +228,34 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ authenticated: !!user, user, loading, getChildren, getTutors, getExams, login, logout, registerSearcher, getResults, results, exams, getQuestionario }}
+      value={{
+        authenticated: !!user,
+        user,
+        loading,
+        getExams,
+        tutors,
+        childrenTeen,
+        finishedChildren,
+        finishedTutors,
+        quantityChildren,
+        quantityTutors,
+        getQuestionario,
+        getResults,
+        setFinishedChildren,
+        setFinishedTutors,
+        setLoading,
+        setTutorsFiltered,
+        setChildrenTeenFiltered,
+        login,
+        logout,
+        registerSearcher,
+        isOpenQuestionaryModal,
+        setIsOpenQuestionaryModal,
+        exams,
+        results,
+        isChangePassword,
+        setIsChangePassword,
+      }}
     >
       {children}
     </AuthContext.Provider>

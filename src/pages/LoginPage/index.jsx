@@ -69,8 +69,8 @@ const LoginPage = () => {
       </form>
       {isOpenErrorMessage && (
         <>
-          <div id="overlay" />
-          <div id="modal">
+          <div class="overlay" />
+          <div class="modal">
             <main id="modal__main">
               <h1>Login invalido</h1>
               <p>
