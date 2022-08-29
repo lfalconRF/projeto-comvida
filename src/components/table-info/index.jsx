@@ -70,7 +70,7 @@ const TableInfo = () => {
     if (personChoosed) {
       setIsLoadingQuestionaryPerson(true)
       const resultsFromApi = await getResults(personChoosed.idUser)
-      const answersPerson = resultsFromApi.map((object) => {
+      const answersPerson = resultsFromApi?.map((object) => {
         let count = 0
         if (object.child?.name === personChoosed.nameChild) {
           count = object.id
@@ -100,11 +100,13 @@ const TableInfo = () => {
       setTimeout(() => {
         setListOfResults(answers)
       }, 4000)
-      setTimeout(() => {
-        setIsLoadingQuestionaryPerson(false)
-        setIsOpenQuestionaryModal(true)
-      }, 4000)
+    } else {
+      setListOfResults([])
     }
+    setTimeout(() => {
+      setIsLoadingQuestionaryPerson(false)
+      setIsOpenQuestionaryModal(true)
+    }, 4000)
   }, [lengthListOfResults])
 
   const handleCountAnwsers = (questionnaires) => {

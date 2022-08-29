@@ -187,12 +187,8 @@ export const AuthProvider = ({ children }) => {
       console.log('response', response)
       let catchTheValue = response.data
       console.log('catchTheValue', catchTheValue)
-      if (response.data.length > 0) {
-        const finalResults = catchTheValue.filter((item) => item.exam !== null)
-        console.log('finalResults', finalResults)
-        setResults(finalResults)
-        return finalResults
-      }
+      const finalResults = catchTheValue?.filter((item) => item.exam !== null)
+      return finalResults
     } catch (error) {}
   }
 

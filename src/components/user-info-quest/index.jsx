@@ -56,7 +56,7 @@ const UserInfo = ({ person, questionaries }) => {
   ) : (
     <div class="containerUserNoInfo">
       <h1 class="nameOfPerson">
-        {person.nameChild} não tem registro de nenhuma resposta de qualquer questionário
+        {person?.nameChild === 'Familia' ? `${person?.nameTutor}` : `${person?.nameChild}`} não tem registro de nenhuma resposta de qualquer questionário
       </h1>
       <button class="buttonModalNoInfo" onClick={() => setIsOpenQuestionaryModal(false)}>
         Fechar
