@@ -62,8 +62,6 @@ const TableInfo = () => {
       setFinishedTutors(false)
       setLoading(false)
     }
-    console.log('Tutores', tutors)
-    console.log('Crianças', childrenTeen)
   }, [childrenTeen, finishedChildren, finishedTutors, tutors])
 
   useEffect(async () => {
@@ -100,13 +98,17 @@ const TableInfo = () => {
       setTimeout(() => {
         setListOfResults(answers)
       }, 4000)
+      setTimeout(() => {
+        setIsLoadingQuestionaryPerson(false)
+        setIsOpenQuestionaryModal(true)
+      }, 4000)
     } else {
       setListOfResults([])
+      setTimeout(() => {
+        setIsLoadingQuestionaryPerson(false)
+        setIsOpenQuestionaryModal(true)
+      }, 4000)
     }
-    setTimeout(() => {
-      setIsLoadingQuestionaryPerson(false)
-      setIsOpenQuestionaryModal(true)
-    }, 4000)
   }, [lengthListOfResults])
 
   const handleCountAnwsers = (questionnaires) => {
@@ -162,46 +164,27 @@ const TableInfo = () => {
     console.log('Entrou no create table')
     return tutors.map((objeto) => {
       return objeto.children.map((child) => {
-        if (
-          !(
-            objeto.tutor?.name.toLowerCase().includes('test') ||
-            objeto.tutor?.name.toLowerCase().includes('tutor') ||
-            objeto.tutor?.name.toLowerCase().includes('app') ||
-            child?.name.toLowerCase().includes('test') ||
-            child?.name.toLowerCase().includes('adolescente') ||
-            child?.name.toLowerCase().includes('crian') ||
-            child?.name.toLowerCase().includes('teen') ||
-            child?.name.toLowerCase().includes('child') ||
-            child?.name.toLowerCase().includes('kid') ||
-            child?.name.toLowerCase().includes('mulher')
-          )
-        ) {
         return (
           <tr key={`${objeto.tutor.id}${child?.id}`}>
             <td class="lineTable">{objeto.tutor.name}</td>
             <td class="lineTable">{child.name}</td>
             <td class="lineTable">{child?.age_range ? child.age_range : 'Familia'}</td>
             <td class="lineTable">
-              {!isLoadingQuestionaryPerson ? (
-                <button
-                  onClick={() => {
-                    setPersonChoosed({
-                      nameChild: child.name,
-                      nameTutor: objeto.tutor.name,
-                      idUser: objeto.tutor.user,
-                    })
-                  }}
-                  className="close-button"
-                >
-                  Abrir Questionarios
-                </button>
-              ) : (
-                'Carregando dados'
-              )}
+              <button
+                onClick={() => {
+                  setPersonChoosed({
+                    nameChild: child.name,
+                    nameTutor: objeto.tutor.name,
+                    idUser: objeto.tutor.user,
+                  })
+                }}
+                className="close-button"
+              >
+                Abrir Questionarios
+              </button>
             </td>
           </tr>
         )
-      }
       })
     })
   }
