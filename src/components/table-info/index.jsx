@@ -161,7 +161,6 @@ const TableInfo = () => {
   }
 
   const handleCreateTheTable = () => {
-    console.log('Entrou no create table')
     return tutors.map((objeto) => {
       return objeto.children.map((child) => {
         return (
@@ -249,7 +248,6 @@ const TableInfo = () => {
   return (
     <div id="main_container">
       <table id="child_teen">
-        {console.log('Rspostas', listOfResults)}
         <thead>{handleCreateHeaderTable()}</thead>
         <tbody>
           {loadingAnswer ? (
