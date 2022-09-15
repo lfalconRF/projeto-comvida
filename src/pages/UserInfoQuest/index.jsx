@@ -1,18 +1,24 @@
-import React, { useContext } from 'react'
+import React from 'react'
 
-import { AuthContext } from '../../contexts/auth'
+import Header from '../../components/header'
 
 import './styles.css'
 
-const UserInfo = ({ person, questionaries }) => {
-  const { setIsOpenQuestionaryModal } = useContext(AuthContext)
+const UserInfo = () => {
+  const person  = JSON.parse(localStorage.getItem('person'))
+  const questionaries = JSON.parse(localStorage.getItem('questionaries'))
+  setTimeout(() => {
+    localStorage.removeItem('person')
+    localStorage.removeItem('questionaries')
+  }, 2000)
+  console.log('Person =========>', person)
+  console.log('Questionaries ==========>', questionaries)
+
   return questionaries.length !== 0 ? (
     <>
-      <button class="buttonModalInfo" onClick={() => setIsOpenQuestionaryModal(false)}>
-        Fechar
-      </button>
-      <div class="containerUserInfo">
-        <h1 class="nameOfPerson">
+      <Header />
+      <div className="containerUserInfo">
+        <h1 className="nameOfPerson">
           Nome:
           {person?.nameChild === 'Familia'
             ? ` ${person?.nameChild} de ${person?.nameTutor}`
@@ -23,9 +29,9 @@ const UserInfo = ({ person, questionaries }) => {
             <div class="containerQuestionaries">
               <table>
                 <thead>
-                  <tr class="cabecalho">
+                  <tr className="cabecalho">
                     <td colSpan="2">
-                      <h2 class="titleOfQuestionary">{questionary.exam.description}: </h2>
+                      <h2 className="titleOfQuestionary">{questionary.exam.description}: </h2>
                     </td>
                   </tr>
                   <tr>
@@ -41,8 +47,8 @@ const UserInfo = ({ person, questionaries }) => {
                   {questionary.result_answers.map((quest) => {
                     return (
                       <tr>
-                        <td class="cellOfTable">{quest.question?.title}</td>
-                        <td class="cellOfTable">{quest.answer?.title || quest.answer}</td>
+                        <td className="cellOfTable">{quest.question?.title}</td>
+                        <td className="cellOfTable">{quest.answer?.title || quest.answer}</td>
                       </tr>
                     )
                   })}
@@ -54,11 +60,12 @@ const UserInfo = ({ person, questionaries }) => {
       </div>
     </>
   ) : (
-    <div class="containerUserNoInfo">
-      <h1 class="nameOfPerson">
-        {person?.nameChild === 'Familia' ? `${person?.nameTutor}` : `${person?.nameChild}`} não tem registro de nenhuma resposta de qualquer questionário
+    <div className="containerUserNoInfo">
+      <h1 className="nameOfPerson">
+        {person?.nameChild === 'Familia' ? `${person?.nameTutor}` : `${person?.nameChild}`} não tem
+        registro de nenhuma resposta de qualquer questionário
       </h1>
-      <button class="buttonModalNoInfo" onClick={() => setIsOpenQuestionaryModal(false)}>
+        <button className="buttonModalNoInfo" onClick={() => { }}>
         Fechar
       </button>
     </div>

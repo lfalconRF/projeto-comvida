@@ -19,7 +19,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (cpf, password) => {
     const response = await api.post('/v2/users/login/', { cpf, password })
+    console.log('Login concluido')
     if (response?.status === 200) {
+      console.log('Entrou dentro do if')
       setLoading(true)
       setUser(response.data)
       localStorage.setItem('user', JSON.stringify(response.data))
@@ -40,6 +42,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const getQuantityTutors = async (token) => {
+    console.log('Quantity tutors')
     const response = await api.get('/v2/tutors/', {
       headers: {
         Authorization: `Token ${token}`,
@@ -123,6 +126,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const getQuantityChildren = async (token) => {
+    console.log('Quantity children')
     const response = await api.get('/v2/children/', {
       headers: {
         Authorization: `Token ${token}`,
@@ -210,7 +214,7 @@ export const AuthProvider = ({ children }) => {
         },
       })
       response.data.map((question) =>
-        listExams.push({ numberId: question?.id, sizeQuestions: question?.questions?.length })
+        listExams.push(question)
       )
       setExams(listExams)
     }

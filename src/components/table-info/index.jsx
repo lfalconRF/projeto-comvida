@@ -2,12 +2,11 @@
 /* eslint-disable no-lone-blocks */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+// import { useNavigate } from 'react-router-dom'
 import { FaFlag } from 'react-icons/fa'
 import Tooltip from '../tooltip/index.jsx'
 
 import { AuthContext } from '../../contexts/auth'
-import UserInfo from '../user-info-quest/index.jsx'
 
 import './styles.css'
 
@@ -29,10 +28,13 @@ const TableInfo = () => {
     loading,
     isOpenQuestionaryModal,
     setIsOpenQuestionaryModal,
+    exams,
+    getExams,
   } = useContext(AuthContext)
 
   const [listOfResults, setListOfResults] = useState([])
   const [lengthListOfResults, setLengthListOfResults] = useState([])
+  const [percentagensQuestionary, setPercentagensQuestionary] = useState([])
   const [isLoadingQuestionaryPerson, setIsLoadingQuestionaryPerson] = useState(false)
   const [loadingAnswer, setLoadingAnswer] = useState(loading)
   const [personChoosed, setPersonChoosed] = useState(0)
@@ -46,7 +48,7 @@ const TableInfo = () => {
     }
   }, [quantityChildren, quantityTutors])
 
-  useEffect(() => {
+  useEffect(async () => {
     if (finishedChildren && finishedTutors) {
       tutors.forEach((tutor) => {
         childrenTeen.forEach((child) => {
@@ -58,11 +60,22 @@ const TableInfo = () => {
           }
         })
       })
+      console.log('Tutors', tutors)
+      console.log('Children', childrenTeen)
+      await getExams()
       setFinishedChildren(false)
       setFinishedTutors(false)
       setLoading(false)
     }
   }, [childrenTeen, finishedChildren, finishedTutors, tutors])
+
+  useEffect(() => {
+    let resultsFromTutor = {}
+    tutors.forEach(async (objeto) => {
+      resultsFromTutor = await getResults(objeto?.tutor.user)
+      objeto.resultsQuestion = resultsFromTutor
+    })
+  }, [tutors])
 
   useEffect(async () => {
     if (personChoosed) {
@@ -70,14 +83,15 @@ const TableInfo = () => {
       const resultsFromApi = await getResults(personChoosed.idUser)
       const answersPerson = resultsFromApi?.map((object) => {
         let count = 0
-        if (object.child?.name === personChoosed.nameChild) {
+        if (object.child?.id === personChoosed.id) {
           count = object.id
-        }
-        if (object.child === null && personChoosed.nameChild === 'Familia') {
+        }else
+        if (object?.exam.id === (9 || 12 || 20 || 24) && personChoosed.nameChild === 'Familia') {
           count = object.id
         }
         return count
       })
+      console.log('Respostas do person choosed ======>', answersPerson)
       setLengthListOfResults(answersPerson)
     }
   }, [personChoosed])
@@ -87,28 +101,34 @@ const TableInfo = () => {
   }, [loading])
 
   useEffect(() => {
-    if (lengthListOfResults.length !== 0) {
-      const values = lengthListOfResults.filter((number) => number !== 0)
-      let answers = []
-      values.forEach((number) => {
-        getQuestionario(number).then((res) => {
-          answers.push(res)
+    if (personChoosed) {
+      if (lengthListOfResults.length !== 0) {
+        const values = lengthListOfResults.filter((number) => number !== 0)
+        let answers = []
+        values.forEach((number) => {
+          getQuestionario(number).then((res) => {
+            answers.push(res)
+          })
         })
-      })
-      setTimeout(() => {
-        setListOfResults(answers)
-      }, 4000)
-      setTimeout(() => {
-        setIsLoadingQuestionaryPerson(false)
-        setIsOpenQuestionaryModal(true)
-      }, 4000)
-    } else {
-      setListOfResults([])
+
+        setTimeout(() => {
+          setListOfResults(answers)
+        }, 4000)
+      } else {
+        setListOfResults([])
+      }
+
       setTimeout(() => {
         setIsLoadingQuestionaryPerson(false)
         setIsOpenQuestionaryModal(true)
       }, 4000)
+
+      localStorage.setItem('person', JSON.stringify(personChoosed))
+      localStorage.setItem('questionaries', JSON.stringify(listOfResults))
+
+      window.open('/user-info-questionary')
     }
+    setPersonChoosed(0)
   }, [lengthListOfResults])
 
   const handleCountAnwsers = (questionnaires) => {
@@ -142,6 +162,18 @@ const TableInfo = () => {
     )
   }
 
+  const handleAgeRange = (ageRange) => {
+    switch (ageRange) {
+      case 'six_to_twelve':
+      case 'children':
+        return 'Criança'
+      case 'teenagers':
+        return 'Adolescente'
+      default:
+        return 'Familia'
+    }
+  }
+
   const handleCreateHeaderTable = () => {
     return (
       <>
@@ -153,11 +185,83 @@ const TableInfo = () => {
             Nome da Criança/Adolescente
           </th>
           <th key={'faixaEtaria'}>Faixa Etaria</th>
-          {/* <th key={'questComplete'}>Quantidade de Respostas</th> */}
+          <th key={'questComplete'}>Porcentagem de Respostas</th>
           <th key={'respostasQuest'}>Respostas do Questionario</th>
         </tr>
       </>
     )
+  }
+
+  const handlePercentage = (resultsFromTutor, childAgeRange, idChild) => {
+    console.log('Results =========>', resultsFromTutor)
+    if (childAgeRange === 'children' || childAgeRange === 'six_to_twelve') {
+      const values = []
+      resultsFromTutor?.map((result) => {
+        if (idChild === result?.child?.id) {
+          if (!values.includes(result?.exam.id)) {
+            values.push(result?.exam.id)
+          }
+        }
+      })
+      let counter = 0
+      if (values.includes(14)) {
+        counter += 1
+      }
+      if (values.includes(15)) {
+        counter += 1
+      }
+      if (values.includes(17)) {
+        counter += 1
+      }
+      return `${(counter / 3) * 100}%`
+    } else if (childAgeRange === 'teenagers') {
+      const values = []
+      resultsFromTutor?.map((result) => {
+        if (idChild === result?.child?.id) {
+          if (!values.includes(result?.exam.id)) {
+            values.push(result?.exam.id)
+          }
+        }
+      })
+      let counter = 0
+      if (values.includes(18)) {
+        counter += 1
+      }
+      if (values.includes(16)) {
+        counter += 1
+      }
+      if (values.includes(19)) {
+        counter += 1
+      }
+      if (values.includes(22)) {
+        counter += 1
+      }
+      if (values.includes(21)) {
+        counter += 1
+      }
+      return `${(counter / 5) * 100}%`
+    } else {
+      const values = []
+      resultsFromTutor?.map((result) => {
+        if (!values.includes(result?.exam.id)) {
+          values.push(result?.exam.id)
+        }
+      })
+      let counter = 0
+      if (values.includes(9)) {
+        counter += 1
+      }
+      if (values.includes(12)) {
+        counter += 1
+      }
+      if (values.includes(20)) {
+        counter += 1
+      }
+      if (values.includes(24)) {
+        counter += 1
+      }
+      return `${(counter / 4) * 100}%`
+    }
   }
 
   const handleCreateTheTable = () => {
@@ -165,17 +269,27 @@ const TableInfo = () => {
       return objeto.children.map((child) => {
         return (
           <tr key={`${objeto.tutor.id}${child?.id}`}>
-            <td class="lineTable">{objeto.tutor.name}</td>
+            <td class="lineTable">
+              <Tooltip content={`Telefone: ${objeto.tutor?.phone}`} direction="right">
+                {objeto.tutor.name}
+              </Tooltip>
+            </td>
             <td class="lineTable">{child.name}</td>
-            <td class="lineTable">{child?.age_range ? child.age_range : 'Familia'}</td>
+            <td class="lineTable">{handleAgeRange(child?.age_range)}</td>
+            <td class="lineTable">
+              {handlePercentage(objeto?.resultsQuestion, child?.age_range, child?.id)}
+            </td>
             <td class="lineTable">
               <button
-                onClick={() => {
+                id={`${child?.id}`}
+                onClick={(event) => {
                   setPersonChoosed({
                     nameChild: child.name,
                     nameTutor: objeto.tutor.name,
                     idUser: objeto.tutor.user,
+                    id: child?.id
                   })
+                  console.log('event', event.target)
                 }}
                 className="close-button"
               >
@@ -263,14 +377,14 @@ const TableInfo = () => {
           )}
         </tbody>
       </table>
-      {isOpenQuestionaryModal && (
+      {/* {isOpenQuestionaryModal && (
         <>
           <div class="overlay" />
           <div class="modalTableInfo">
             <UserInfo person={personChoosed} questionaries={listOfResults} />
           </div>
         </>
-      )}
+      )} */}
     </div>
   )
 }
